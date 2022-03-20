@@ -10,6 +10,12 @@ menu "Custom Audio Board"
         config DAC_PCM51XX
             bool "TI PCM51XX/TAS57XX based DAC"
 
+        config DAC_RASPIAUDIO
+            bool "RaspiAudio based DAC"
+
+        config DAC_RASPIAUDIO_MUSE_PROTO
+            bool "RaspiAudio based DAC"
+
         config DAC_MA120
             bool "Infineon MA120 ClassD AMP"
 
@@ -133,5 +139,37 @@ menu "Custom Audio Board"
              help
                  GPIO number low if clip observed
      endmenu
+
+     menu "RASPIAUDIO interface Configuration"
+        depends on DAC_RASPIAUDIO
+
+        config RASPIAUDIO_NMUTE_PIN
+            int "Master mute/unmute for raspiaudio"
+            default 12
+            help
+                GPIO number to controm mute/unmute.
+
+        config RASPIAUDIO_NENABLE_PIN
+            int "Master enable/disable for raspiaudio"
+            default 21
+            help
+                GPIO number to control enable/disable.
+    endmenu
+
+    menu "RASPIAUDIO_PROTO interface Configuration"
+        depends on DAC_RASPIAUDIO_MUSE_PROTO
+
+        config RASPIAUDIO_NMUTE_PIN
+            int "Master mute/unmute for raspiaudio"
+            default 12
+            help
+                GPIO number to controm mute/unmute.
+
+        config RASPIAUDIO_NENABLE_PIN
+            int "Master enable/disable for raspiaudio"
+            default 21
+            help
+                GPIO number to control enable/disable.
+    endmenu
 
 endmenu
