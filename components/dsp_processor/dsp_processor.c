@@ -44,14 +44,14 @@ ptype_t bq[8];
 
 void setup_dsp_i2s(uint32_t sample_rate, bool slave_i2s) {
   i2s_config_t i2s_config0 = {
-      .mode = I2S_MODE_MASTER | I2S_MODE_TX,  // Only TX
+      .mode = I2S_MODE_MASTER |I2S_MODE_RX | I2S_MODE_TX,  
       .sample_rate = sample_rate,
       .bits_per_sample = bits_per_sample,
       .channel_format = I2S_CHANNEL_FMT_RIGHT_LEFT,  // 2-channels
-      .communication_format = I2S_COMM_FORMAT_I2S,
-      .dma_buf_count = 8,
-      .dma_buf_len = 480,
-      .intr_alloc_flags = 1,  // Default interrupt priority
+      .communication_format = I2S_COMM_FORMAT_I2S | I2S_COMM_FORMAT_I2S_MSB,
+      .dma_buf_count = 3,
+      .dma_buf_len = 1024,
+      .intr_alloc_flags = ESP_INTR_FLAG_LEVEL1,  // Default interrupt priority
       .use_apll = true,
       .fixed_mclk = 0,
       .tx_desc_auto_clear = true  // Auto clear tx descriptor on underflow
@@ -59,6 +59,9 @@ void setup_dsp_i2s(uint32_t sample_rate, bool slave_i2s) {
 
   i2s_pin_config_t pin_config0;
   get_i2s_pins(I2S_NUM_0, &pin_config0);
+
+  PIN_FUNC_SELECT(PERIPHS_IO_MUX_GPIO0_U, FUNC_GPIO0_CLK_OUT1);
+  REG_WRITE(PIN_CTRL, 0xFFFFFFF0);
 
   i2s_driver_install(0, &i2s_config0, 7, &i2s_queue);
   i2s_zero_dma_buffer(0);
@@ -529,8 +532,6 @@ void dsp_i2s_task_init(uint32_t sample_rate, bool slave) {
   printf("Buffer_stoarge ok\n");
   s_ringbuf_i2s = xRingbufferCreateStatic(BUFFER_SIZE, RINGBUF_TYPE_BYTEBUF,
                                           buffer_storage, buffer_struct);
-  //s_ringbuf_i2s = xRingbufferCreateStatic(BUFFER_SIZE, RINGBUF_TYPE_BYTEBUF,
-  //                                        buffer_storage, buffer_struct);
   printf("Ringbuf ok\n");
 #else
   printf(

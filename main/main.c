@@ -106,7 +106,7 @@ static void http_get_task(void *pvParameters) {
   int16_t *audio =
       (int16_t *)malloc(960 * 2 * sizeof(int16_t));  // 960*2: 20ms, 960*1: 10ms
 
-  int16_t pcm_size = 120;
+  int16_t pcm_size = 1200;
   uint16_t channels;
   uint32_t cnt = 0;
   int chunk_res;

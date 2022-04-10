@@ -50,7 +50,7 @@ esp_err_t get_i2c_pins(i2c_port_t port, i2c_config_t *i2c_config) {
 
 esp_err_t get_i2s_pins(i2s_port_t port, i2s_pin_config_t *i2s_config) {
   AUDIO_NULL_CHECK(TAG, i2s_config, return ESP_FAIL);
-    memset(i2s_config, 0, sizeof(i2s_pin_config_t));
+  memset(i2s_config, 0, sizeof(i2s_pin_config_t));
   if (port == I2S_NUM_0) {
     i2s_config->mck_io_num = 0;
     i2s_config->bck_io_num = CONFIG_MASTER_I2S_BCK_PIN;

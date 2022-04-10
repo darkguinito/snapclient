@@ -186,14 +186,14 @@ void setup(void){
   // gpio_set_pull_mode(AUXD, GPIO_PULLUP_ONLY);
 
   // SD detect
-  // gpio_reset_pin(SDD);
-  // gpio_set_direction(SDD, GPIO_MODE_INPUT);
-  // gpio_set_pull_mode(SDD, GPIO_PULLUP_ONLY);
+  gpio_reset_pin(SDD);
+  gpio_set_direction(SDD, GPIO_MODE_INPUT);
+  gpio_set_pull_mode(SDD, GPIO_PULLUP_ONLY);
 
   // pause
-  // gpio_reset_pin(RA_NMUTE_IO);
-  // gpio_set_direction(RA_NMUTE_IO, GPIO_MODE_INPUT);
-  // gpio_set_pull_mode(RA_NMUTE_IO, GPIO_PULLUP_ONLY);
+  gpio_reset_pin(RA_NMUTE_IO);
+  gpio_set_direction(RA_NMUTE_IO, GPIO_MODE_INPUT);
+  gpio_set_pull_mode(RA_NMUTE_IO, GPIO_PULLUP_ONLY);
 
   // Store SD detect and AUX detect initial values
   vsdd = gpio_get_level(SDD);
@@ -222,6 +222,52 @@ esp_err_t raspiaudio_init(audio_hal_codec_config_t *codec_cfg) {
     I2C_EXAMPLE_MASTER_TX_BUF_DISABLE, 
     0
   );
+  // provides MCLK
+  PIN_FUNC_SELECT(PERIPHS_IO_MUX_GPIO0_U, FUNC_GPIO0_CLK_OUT1);
+  WRITE_PERI_REG(PIN_CTRL, READ_PERI_REG(PIN_CTRL)& 0xFFFFFFF0);
+
+  // reset
+  ES8388_Write_Reg(0, 0x80);
+  ES8388_Write_Reg(0, 0x00);
+  // mute
+  ES8388_Write_Reg(25, 0x04);
+  ES8388_Write_Reg(1, 0x50);
+  //powerup
+  ES8388_Write_Reg(2, 0x00);
+  // slave mode
+  ES8388_Write_Reg(8, 0x00);
+  // DAC powerdown
+  ES8388_Write_Reg(4, 0xC0);
+  // vmidsel/500k ADC/DAC idem
+  ES8388_Write_Reg(0, 0x12);
+
+  ES8388_Write_Reg(1, 0x00);
+  // i2s 16 bits
+  ES8388_Write_Reg(23, 0x18);
+  // sample freq 256
+  ES8388_Write_Reg(24, 0x02);
+  // LIN2/RIN2 for mixer
+  ES8388_Write_Reg(38, 0x09);
+  // left DAC to left mixer
+  ES8388_Write_Reg(39, 0x90);
+  // right DAC to right mixer
+  ES8388_Write_Reg(42, 0x90);
+  // DACLRC ADCLRC idem
+  ES8388_Write_Reg(43, 0x80);
+  ES8388_Write_Reg(45, 0x00);
+  // DAC volume max
+  ES8388_Write_Reg(27, 0x00);
+  ES8388_Write_Reg(26, 0x00);
+
+  ES8388_Write_Reg(2 , 0xF0);
+  ES8388_Write_Reg(2 , 0x00);
+  ES8388_Write_Reg(29, 0x1C);
+  // DAC power-up LOUT1/ROUT1 enabled
+  ES8388_Write_Reg(4, 0x30);
+  // unmute
+  ES8388_Write_Reg(25, 0x00);
+  // amp validation
+  gpio_set_level(RA_NENABLE_IO, 1);
 
 	if (ret != ESP_OK) {
 		ESP_LOGW(TAG, "I2C write failed %d", ret);
